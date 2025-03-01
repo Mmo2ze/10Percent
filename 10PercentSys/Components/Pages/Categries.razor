@@ -1,0 +1,139 @@
+﻿@page "/categories"
+@using _10PercentSys.Models
+@using _10PercentSys.Services
+@inject LocalDbService DbService
+@inject NavigationManager Navigation
+
+<h1>Manage Categories</h1>
+
+<div class="category-form">
+    <h3>@(editMode ? "Edit Category" : "Add New Category")</h3>
+    <input @bind="currentCategory.Name" 
+           placeholder="Category name" 
+           class="form-control mb-2" />
+    <input 
+        @bind="currentCategory.Color"
+        placeholder="color"
+        type="color"
+    />
+    <input
+        @bind="currentCategory.Color"
+        placeholder="color"
+        type="text"
+    />
+           
+    <div class="button-group">
+        <button @onclick="SaveCategory" class="btn btn-primary">
+            @(editMode ? "Update" : "Add")
+        </button>
+        @if (editMode)
+        {
+            <button @onclick="CancelEdit" class="btn btn-secondary">Cancel</button>
+        }
+    </div>
+</div>
+
+<div class="category-list">
+    <h3>Existing Categories</h3>
+    @if (categories?.Any() != true)
+    {
+        <p>No categories found</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in categories)
+                {
+                    <tr>
+                        <td>
+                            <a href="/category/@category.Id" class="category-link" style="color:@category.ColorRgp()">
+                                @category.Name
+                            </a>
+                        </td>
+                        <td>
+                            <button @onclick="@(() => EditCategory(category))" 
+                                    class="btn btn-sm btn-warning">
+                                Edit
+                            </button>
+                            <button @onclick="@(() => DeleteCategory(category.Id))" 
+                                    class="btn btn-sm btn-danger">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<Category> categories = new();
+    private Category currentCategory = new();
+    private bool editMode;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategories();
+    }
+
+    private async Task LoadCategories()
+    {
+        categories = await DbService.GetCategoriesAsync();
+    }
+
+    private async Task SaveCategory()
+    {
+        try
+        {
+            ColorConverter.HexToRgb(currentCategory.Color);
+        }
+        catch
+        {
+            // handle error
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(currentCategory.Name))
+        {
+            return;
+        }
+
+        if (editMode)
+        {
+            await DbService.UpdateCategoryAsync(currentCategory);
+        }
+        else
+        {
+            await DbService.CreateCategoryAsync(currentCategory);
+        }
+
+        currentCategory = new Category();
+        editMode = false;
+        await LoadCategories();
+    }
+
+    private void EditCategory(Category category)
+    {
+        currentCategory = new Category { Id = category.Id, Name = category.Name, Color = category.Color };
+        editMode = true;
+    }
+
+    private void CancelEdit()
+    {
+        currentCategory = new Category();
+        editMode = false;
+    }
+
+    private async Task DeleteCategory(int categoryId)
+    {
+        await DbService.DeleteCategoryAsync(categoryId);
+        await LoadCategories();
+    }
+}

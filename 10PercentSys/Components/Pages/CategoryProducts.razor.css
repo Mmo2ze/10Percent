@@ -1,0 +1,184 @@
+﻿/* Enhanced Form Styling */
+.product-form {
+    background: linear-gradient(to bottom right, #FFFFFF, #FDF6E3);
+    border-radius: 15px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(92, 64, 51, 0.1);
+    border: 1px solid rgba(212, 180, 153, 0.3);
+}
+
+/* Product Name Input */
+.form-control {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid #E6D5C3;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    background-color: #FFFFFF;
+    color: #5C4033;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #8B4513;
+    box-shadow: 0 0 0 4px rgba(139, 69, 19, 0.1);
+    transform: translateY(-2px);
+}
+
+.form-control::placeholder {
+    color: #B8A190;
+}
+
+/* Price Inputs Section */
+.price-inputs {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(212, 180, 153, 0.3);
+    box-shadow: 0 2px 12px rgba(92, 64, 51, 0.05);
+}
+
+.price-inputs h5 {
+    color: #5C4033;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #E6D5C3;
+    position: relative;
+}
+
+.price-inputs h5::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background-color: #8B4513;
+}
+
+/* Individual Price Input Groups */
+.price-input {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background-color: #FDF6E3;
+}
+
+.price-input:hover {
+    background-color: #F5E6D3;
+}
+
+.price-input label {
+    color: #5C4033;
+    font-weight: 500;
+    font-size: 1rem;
+    padding-left: 0.5rem;
+    border-left: 3px solid #D4B499;
+}
+
+.price-input input[type="number"] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #E6D5C3;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #FFFFFF;
+}
+
+.price-input input[type="number"]:focus {
+    outline: none;
+    border-color: #8B4513;
+    box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+/* Remove number input arrows */
+.price-input input[type="number"]::-webkit-outer-spin-button,
+.price-input input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.price-input input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Price Badges in Table */
+.price-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #F5E6D3, #E6D5C3);
+    color: #5C4033;
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    margin: 0.25rem;
+    font-size: 0.95rem;
+    border: 1px solid rgba(212, 180, 153, 0.3);
+    box-shadow: 0 2px 4px rgba(92, 64, 51, 0.1);
+    transition: all 0.3s ease;
+}
+
+.price-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(92, 64, 51, 0.15);
+}
+
+/* Button Group Styling */
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #E6D5C3;
+}
+
+.button-group .btn {
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.button-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 64, 51, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .product-form {
+        padding: 1.5rem;
+    }
+
+    .price-inputs {
+        padding: 1.5rem;
+    }
+
+    .price-input {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .price-input label {
+        border-left: none;
+        border-bottom: 2px solid #D4B499;
+        padding: 0 0 0.5rem 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .button-group .btn {
+        width: 100%;
+    }
+}

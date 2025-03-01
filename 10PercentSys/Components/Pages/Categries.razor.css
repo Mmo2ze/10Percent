@@ -1,0 +1,220 @@
+﻿/* Main Layout */
+body {
+    background-color: #FDF6E3;
+    color: #433422;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Page Header */
+h1 {
+    color: #5C4033;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #D4B499;
+    position: relative;
+}
+
+h1::after {
+    content: '☕';
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 2rem;
+}
+
+/* Category Form Section */
+.category-form {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.category-form h3 {
+    color: #5C4033;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #D4B499;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #8B4513;
+    box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Category List Section */
+.category-list {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.category-list h3 {
+    color: #5C4033;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Table Styles */
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
+}
+
+.table th {
+    background-color: #F5E6D3;
+    color: #5C4033;
+    font-weight: 600;
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 2px solid #D4B499;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid #EDE0D4;
+}
+
+.table tbody tr:hover {
+    background-color: #FDF6E3;
+}
+
+/* Category Link Styles */
+.category-link {
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.category-link:hover {
+    color: #5C4033;
+    text-decoration: underline;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #8B4513;
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: #5C4033;
+}
+
+.btn-secondary {
+    background-color: #D4B499;
+    color: #433422;
+}
+
+.btn-secondary:hover {
+    background-color: #C4A484;
+}
+
+.btn-warning {
+    background-color: #DEB887;
+    color: #433422;
+}
+
+.btn-warning:hover {
+    background-color: #D2691E;
+    color: #FFFFFF;
+}
+
+.btn-danger {
+    background-color: #CD5C5C;
+    color: #FFFFFF;
+}
+
+.btn-danger:hover {
+    background-color: #B22222;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* Empty State */
+.category-list p {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+    background-color: #FDF6E3;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .category-form,
+    .category-list {
+        padding: 1.5rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem;
+    }
+}
+
+.form-switch {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.normal-price-input {
+    margin-top: 1rem;
+}

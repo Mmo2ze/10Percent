@@ -1,0 +1,414 @@
+﻿@page "/"
+@using System.Net.Mime
+@using System.Text
+@using _10PercentSys.Models
+@using _10PercentSys.Services
+@using System.Drawing        
+@using System.Drawing.Printing 
+@using System.Text            
+@using Size = _10PercentSys.Models.Size
+@inject LocalDbService DbService
+<div class="pos-container">
+    <div class="product-list">
+        @if (isLoading)
+        {
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading products...</p>
+            </div>
+        }
+        else if (categories?.Any() ?? false)
+        {
+            <div class="category-filter">
+                <button class="category-badge @(selectedCategoryId == null ? "active" : "")"
+                        style="background-color: orange; border: 1px solid ;"
+                        @onclick="() => selectedCategoryId = null">
+                    All
+                </button>
+                @foreach (var category in categories)
+                {
+                    <button class="category-badge @(selectedCategoryId == category.Id ? "active" : "")"
+                            style="background-color: @(selectedCategoryId == category.Id ? category.ColorRgp(): "gray");"
+                            @onclick="() => selectedCategoryId = category.Id">
+                        @category.Name
+                    </button>
+                }
+            </div>
+
+            @foreach (var category in categories.Where(c => selectedCategoryId == null || c.Id == selectedCategoryId))
+            {
+                <div class="category-section"
+                     style="background-color: @category.ColorRgp(10);
+                     border: 1px solid @category.ColorRgp(20);
+                     box-shadow: 0 4px 6px @category.ColorRgp(10);">
+                    <h2 style="color: @category.ColorRgp()">@category.Name</h2>
+                    <div class="category-products ">
+                        @foreach (var product in category.Products)
+                        {
+                            <div class="product-card ">
+                                <div class="product-card-header">
+                                    <h3 class="product-name">@product.Name</h3>
+                                    <span class="product-price">
+                                        @if (product.HaveSizes && product.Prices.ContainsKey(selectedSizes[product.Id]))
+                                        {
+                                            @product.Prices[selectedSizes[product.Id]].ToString("C")
+                                        }
+                                        else
+                                        {
+                                            @product.NormalPrice.ToString("C")
+                                        }
+                                    </span>
+                                </div>
+
+                                @if (product.HaveSizes)
+                                {
+                                    <div class="size-buttons">
+                                        @foreach (var price in product.Prices.Where(x =>x.Value != 0))
+                                        {
+                                            <button class="size-button @(selectedSizes[product.Id] == price.Key ? "selected" : "")"
+                                                    style=""
+                                                    @onclick="@(() => selectedSizes[product.Id] = price.Key)">
+                                                @price.Key
+                                            </button>
+                                        }
+                                    </div>
+                                }
+
+                                <div class="quantity-controls">
+                                    <input type="number"
+                                           @bind="productQuantities[product.Id]"
+                                           min="1"
+                                           class="quantity-input"
+                                           style=""/>
+                                    <button @onclick="@(() => AddToOrder(product))"
+                                            class="add-to-cart-button"
+                                            style="background: @category.ColorRgp()">
+                                        <i class="fas fa-cart-plus"></i>
+                                        Add to Order
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>No products available</p>
+            </div>
+        }
+    </div>
+
+    <!-- Order Summary Section -->
+    <div class="order-summary">
+        <h2>Current Order</h2>
+
+        <div class="order-items">
+            <table class="order-table">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Size</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in orderItems)
+                {
+                    <tr>
+                        <td>@item.Product.Name</td>
+                        <td>@(item.Size == Size.None? "-" :item.StringSize)</td>
+                        <td>@item.Price.ToString("C")</td>
+                        <td>
+                            <input type="number"
+                                   @bind="item.Quantity"
+                                   class="quantity-input"
+                                   style="color: #5C4033"
+                                   min="1" />
+                        </td>
+                        <td>@((item.Price * item.Quantity).ToString("C"))</td>
+                        <td>
+                            <button @onclick="@(() => RemoveItem(item))"
+                                    class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="tax-discount-controls">
+            <div class="tax-selection">
+                <label>
+                    <input type="checkbox" @bind="vat10" />
+                    10% Tax
+                </label>
+                <label>
+                    <input type="checkbox" @bind="vat14" />
+                    14% Tax
+                </label>
+            </div>
+
+            <div class="discount-control">
+                <h4>Discount</h4>
+                <input type="number"
+                       @bind="discount"
+                       @bind:after="HandleDiscountChange"
+                       min="0"
+                       max="100"
+                       class="discount-input" />
+                <span>%</span>
+            </div>
+        </div>
+        <div class="total-section">
+            <div class="calculation-breakdown">
+                <div class="calculation-row">
+                    <span>Subtotal:</span>
+                    <span>@CalculateSubtotal().ToString("C")</span>
+                </div>
+                <div class="calculation-row">
+                    <span>Discount (@discount%):</span>
+                    <span>-@CalculateDiscountAmount().ToString("C")</span>
+                </div>
+        
+                    <div class="calculation-row">
+                        <span>Tax (@taxRate%):</span>
+                        <span>@CalculateTaxAmount().ToString("C")</span>
+                    </div>
+                
+                <div class="calculation-row" style="font-weight: 600;">
+                    <span>Total:</span>
+                    <span>@CalculateTotal().ToString("C")</span>
+                </div>
+            </div>
+
+            <div class="total-section">
+                <!-- ... existing total section ... -->
+
+                <div class="order-control-buttons">
+                    <button @onclick="CompleteOrder"
+                            class="btn btn-success"
+                            disabled="@(orderItems.Count == 0)">
+                        <i class="fas fa-check-circle"></i>
+                        Complete Order
+                    </button>
+
+                    <button @onclick="@(() => PrintPrevOrder())"
+                            class="btn btn-warning"
+                            disabled="@(PrevOrder == null)">
+                        <i class="fas fa-sync-alt"></i>
+                       Print Previous Receipt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private bool isLoading = true;
+    private List<Category> categories = new();
+    private List<Product> products = new();
+    private List<OrderItem> orderItems = new();
+    private Dictionary<int, int> productQuantities = new();
+    private Dictionary<int, Size> selectedSizes = new();
+    private bool vat10;
+    private bool vat14;
+    private int discount = 0;
+    private decimal taxRate => GetActiveTaxRates().Sum();
+    private int? selectedCategoryId = null;
+    private Order? PrevOrder; 
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            categories = await DbService.GetCategoriesAsync();
+            products = await DbService.GetProductsAsync();
+
+            foreach (var category in categories)
+            {
+                category.Products = products
+                    .Where(p => p.CategoryId == category.Id)
+                    .ToList();
+            }
+
+            InitializeProductDefaults();
+        }
+        catch (Exception ex)
+        {
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private List<decimal> GetActiveTaxRates()
+    {
+        var rates = new List<decimal>();
+        if (vat10) rates.Add(10m);
+        if (vat14) rates.Add(14m);
+        return rates;
+    }
+
+    private decimal CalculateSingleTaxAmount(decimal rate)
+    {
+        return (CalculateSubtotal() - CalculateDiscountAmount()) * (rate / 100m);
+    }
+
+    private decimal CalculateTaxAmount()
+    {
+        return GetActiveTaxRates().Sum(rate => CalculateSingleTaxAmount(rate));
+    }
+
+    // Keep existing discount handling
+    private void HandleDiscountChange()
+    {
+        discount = Math.Clamp(discount, 0, 100);
+    }
+
+    private void InitializeProductDefaults()
+    {
+        foreach (var product in products)
+        {
+            productQuantities[product.Id] = 1;
+            if (product.HaveSizes && product.Prices.Any())
+            {
+                selectedSizes[product.Id] = product.Prices.Keys.First();
+            }
+        }
+    }
+
+    private void AddToOrder(Product product)
+    {
+        decimal price;
+        Size size;
+
+        if (product.HaveSizes)
+        {
+            size = selectedSizes[product.Id];
+            price = product.Prices[size];
+        }
+        else
+        {
+            size = Size.None;
+            price = product.NormalPrice;
+        }
+
+        var existingItem = orderItems.FirstOrDefault(i =>
+            i.Product.Id == product.Id && i.Size == size);
+
+        if (existingItem != null)
+        {
+            existingItem.Quantity += productQuantities[product.Id];
+        }
+        else
+        {
+            orderItems.Add(new OrderItem
+            {
+                Product = product,
+                Size = size,
+                Price = price,
+                Quantity = productQuantities[product.Id]
+            });
+        }
+
+        productQuantities[product.Id] = 1;
+    }
+
+
+    private void RemoveItem(OrderItem item)
+    {
+        orderItems.Remove(item);
+    }
+
+    private void HandleQuantityChange(OrderItem item)
+    {
+        item.Quantity = Math.Max(1, item.Quantity);
+        StateHasChanged();
+    }
+
+  
+
+    private decimal CalculateSubtotal() => orderItems.Sum(i => i.Price * i.Quantity);
+
+    private decimal CalculateDiscountAmount() => CalculateSubtotal() * (discount / 100m);
+
+
+    private decimal CalculateTotal() => CalculateSubtotal() - CalculateDiscountAmount() + CalculateTaxAmount();
+
+    private async Task CompleteOrder()
+    {
+        // Print receipt
+
+
+        try
+        {
+            var order = new Order
+            {
+                Vat14 = vat14,
+                Vat10 = vat10,
+                Discount = discount,
+            };
+
+            await DbService.CreateOrderAsync(order);
+
+            var orderProducts = orderItems.Select(i => new OrderProduct
+            {
+                Name = i.Product.Name,
+                OrderId = order.Id,
+                ProductId = i.Product.Id,
+                Quantity = i.Quantity,
+                Price = i.Price,
+                Size = i.Size
+            }).ToList();
+
+            await DbService.CreateOrderProductsAsync(orderProducts);
+            order.OrderProducts = orderProducts;
+            var receiptService = new ReceiptService();
+            receiptService.PrintReceipt(order);
+            
+            StateHasChanged();
+            PrevOrder = order;
+            ResetOrder(); 
+
+        }
+        catch (Exception ex)
+        {
+            ResetOrder(); // Reset without printing
+        }
+    }
+    
+
+    private void ResetOrder()
+    {
+        // Reset order state
+        orderItems.Clear();
+        discount = 0;
+
+    
+        // Reset product defaults
+        InitializeProductDefaults();
+    
+
+        StateHasChanged();
+    }
+
+
+    private Task PrintPrevOrder()
+    {
+        var receiptService = new ReceiptService();
+        receiptService.PrintReceipt(PrevOrder);
+        return Task.CompletedTask;
+
+    }
+
+}

@@ -1,0 +1,36 @@
+﻿@inherits LayoutComponentBase
+@implements IDisposable
+
+<div class="page">
+    <div class="sidebar @(isCollapsed ? "collapsed" : "")">
+        <NavMenu IsCollapsed="isCollapsed" ToggleMenu="ToggleMenu" />
+    </div>
+
+    <main class="@(isCollapsed ? "collapsed" : "")">
+        <div class="top-row">
+            <button class="menu-toggle" @onclick="ToggleMenu">
+                <i class="fas @(isCollapsed ? "fa-bars" : "fa-times")"></i>
+            </button>
+        </div>
+        <article class="content">
+            @Body
+        </article>
+    </main>
+</div>
+
+
+
+@code {
+    private bool isCollapsed;
+
+    private void ToggleMenu()
+    {
+        isCollapsed = !isCollapsed;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        // Cleanup if needed
+    }
+}

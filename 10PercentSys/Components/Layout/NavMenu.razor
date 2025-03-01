@@ -1,0 +1,69 @@
+﻿@inject NavigationManager Navigation
+@implements IDisposable
+
+<div class="side-menu @(IsCollapsed ? "collapsed" : "")">
+    <div class="brand-header">
+        <span class="navbar-brand">10PercentSys</span>
+        <button class="menu-toggle" @onclick="ToggleMenu">
+            @if (IsCollapsed)
+            {
+                <i class="fas fa-bars"></i>
+            }
+            else
+            {
+                <i class="fas fa-times"></i>
+            }
+        </button>
+    </div>
+    <nav class="nav-content">
+        <button @onclick="NavigateToHome"
+                class="nav-button @(IsCurrentPage("") ? "active" : "")">
+            Home
+        </button>
+
+        <button @onclick="NavigateToCategories"
+                class="nav-button @(IsCurrentPage("categories") ? "active" : "")">
+            Categories
+        </button>
+
+        <button @onclick="NavigateToWeather"
+                class="nav-button @(IsCurrentPage("orders") ? "active" : "")">
+            Orders
+        </button>
+    </nav>
+</div>
+
+@code {
+    
+    [Parameter]
+    public bool IsCollapsed { get; set; }
+
+    [Parameter]
+    public Action ToggleMenu { get; set; }
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    private void NavigateToHome() => Navigation.NavigateTo("");
+    private void NavigateToCategories() => Navigation.NavigateTo("categories");
+    private void NavigateToWeather() => Navigation.NavigateTo("orders");
+
+    private bool IsCurrentPage(string path)
+    {
+        var currentPath = Navigation.ToBaseRelativePath(Navigation.Uri);
+        return currentPath.Equals(path, StringComparison.OrdinalIgnoreCase);
+    }
+    
+    
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= HandleLocationChanged;
+    }
+}

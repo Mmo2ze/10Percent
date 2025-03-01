@@ -1,0 +1,134 @@
+﻿
+/*.order-card {*/
+/*    transition: transform 0.2s;*/
+/*    border-radius: 15px;*/
+/*}*/
+
+/*.order-card:hover {*/
+/*    transform: translateY(-5px);*/
+/*}*/
+
+/*.tax-info i {*/
+/*    font-size: 1.1rem;*/
+/*    margin-right: 0.3rem;*/
+/*}*/
+
+/*.card-header {*/
+/*    border-radius: 15px 15px 0 0 !important;*/
+/*}*/
+
+/*.list-group-item {*/
+/*    padding: 0.75rem 1.25rem;*/
+/*}*/
+
+/*.form-label {*/
+/*    font-weight: 500;*/
+/*    color: #495057;*/
+/*}*/
+
+/*.form-control:focus {*/
+/*    border-color: #0d6efd;*/
+/*    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);*/
+/*}*/
+
+
+/*input[type="datetime-local"]::-webkit-calendar-picker-indicator {*/
+/*    filter: invert(0.5);*/
+/*    cursor: pointer;*/
+/*    padding: 4px;*/
+/*}*/
+
+/*input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {*/
+/*    padding: 2px;*/
+/*}*/
+
+
+
+
+
+
+
+.container {
+    background: #FDF6E3;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(60, 42, 33, 0.1);
+}
+
+h1 {
+    color: #3C2A21;
+    font-family: 'Playfair Display', serif;
+    border-bottom: 2px solid #D4B499;
+    padding-bottom: 0.5rem;
+}
+
+.form-control {
+    background: #FFF8F0;
+    border: 1px solid #D4B499;
+    border-radius: 6px;
+    color: #5C4033;
+}
+
+.btn-primary {
+    background: #8B4513;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #6D4C41;
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+    border-color: #8B4513;
+    color: #8B4513;
+}
+
+.btn-outline-secondary:hover {
+    background: #8B4513;
+    color: white;
+}
+
+.card {
+    background: #FFF8F0;
+    border: 1px solid #D4B499;
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(92, 64, 51, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #6D4C41 0%, #3C2A21 100%);
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.badge {
+    background: #D4B499 !important;
+    color: #3C2A21 !important;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+}
+
+.alert-success {
+    background: #E8D5C4;
+    border-color: #D4B499;
+    color: #5C4033;
+}
+
+.order-item {
+    background: rgba(212, 180, 153, 0.1);
+    border-radius: 6px;
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+}
+
+.spinner-border {
+    color: #8B4513;
+}
