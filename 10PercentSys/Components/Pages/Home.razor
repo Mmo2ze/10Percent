@@ -282,7 +282,7 @@
             productQuantities[product.Id] = 1;
             if (product.HaveSizes && product.Prices.Any())
             {
-                selectedSizes[product.Id] = product.Prices.Keys.First();
+                selectedSizes[product.Id] = product.Prices.First(x => x.Value!=0).Key;
             }
         }
     }

@@ -1,0 +1,216 @@
+﻿@page "/gamingRoom"
+@using System.Timers
+@using _10PercentSys.Components.Layout
+
+<style>
+    /* Coffee color palette and modern styling */
+    .page-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 2rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #3e2e1e; /* dark brown */
+        background-color: #f6f1ed; /* cream */
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(84, 54, 22, 0.3);
+        user-select: none;
+    }
+
+    h1 {
+        color: #6f4f28; /* coffee dark brown */
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .create-room-form {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    label {
+        font-weight: 600;
+        font-size: 1rem;
+        align-self: center;
+    }
+
+    input[type="number"] {
+        border-radius: 8px;
+        border: 1.5px solid #a07847; /* medium brown */
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        width: 120px;
+        color: #3e2e1e;
+        font-weight: 600;
+        background-color: #fefcf8;
+        transition: border-color 0.3s ease;
+    }
+
+    input[type="number"]:focus {
+        outline: none;
+        border-color: #d6b370;
+        box-shadow: 0 0 5px #d6b370;
+    }
+
+    button.create-room-button {
+        background: #8b5e3c; /* coffee medium brown */
+        color: #fefcf8; /* cream */
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 0.7rem 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 5px 10px rgba(139, 94, 60, 0.5);
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        align-self: center;
+    }
+    button.create-room-button:hover:not(:disabled) {
+        background: #6f482a;
+        box-shadow: 0 8px 14px rgba(111, 72, 42, 0.8);
+    }
+    button.create-room-button:disabled {
+        background: #c9b499;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .rooms-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* Scroll if too many rooms */
+    .rooms-container {
+        max-height: 480px;
+        overflow-y: auto;
+        padding-right: 8px; /* space for scrollbar */
+    }
+</style>
+
+<div class="page-container">
+    <h1>Coffee Gaming Rooms</h1>
+
+    <form class="create-room-form" onsubmit="return false">
+        <label for="priceInput">Price per hour ($):</label>
+        <input type="number" id="priceInput" min="1" step="0.01" @bind="newRoomPrice" placeholder="e.g. 15.50" />
+        <button class="create-room-button" @onclick="CreateRoom" disabled="@(!CanCreateRoom)">
+            Create Room
+        </button>
+    </form>
+
+    <div class="rooms-container">
+        <div class="rooms-list">
+            @foreach (var room in rooms)
+            {
+                <RoomCard RoomId="@room.Id" PricePerHour="@room.PricePerHour"
+                          IsRunning="@room.IsRunning" ElapsedTime="@room.ElapsedTime"
+                          OnStart="() => StartTimer(room.Id)"
+                          OnCheckOut="() => CheckOut(room.Id)">
+                </RoomCard>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<GameRoom> rooms = new();
+    private int nextRoomId = 1;
+
+    private decimal? newRoomPrice;
+
+    private Timer uiTimer;
+
+    protected override void OnInitialized()
+    {
+        uiTimer = new Timer(1000);
+        uiTimer.Elapsed += (s, e) =>
+        {
+            // Update elapsed time for running rooms every second
+            foreach(var r in rooms.Where(r => r.IsRunning))
+            {
+                r.ElapsedTime = DateTime.Now - r.StartTime;
+            }
+            InvokeAsync(StateHasChanged);
+        };
+        uiTimer.AutoReset = true;
+        uiTimer.Start();
+    }
+
+    private bool CanCreateRoom => newRoomPrice != null && newRoomPrice > 0;
+
+    private void CreateRoom()
+    {
+        if (!CanCreateRoom) return;
+        var room = new GamingRoom(1,newRoomPrice);
+        
+        rooms.Add(new GameRoom
+        {
+            Id = nextRoomId++,
+            PricePerHour = newRoomPrice.Value,
+            IsRunning = false,
+            ElapsedTime = TimeSpan.Zero,
+        });
+
+        newRoomPrice = null;
+    }
+
+    private void StartTimer(int roomId)
+    {
+        var room = rooms.FirstOrDefault(r => r.Id == roomId);
+        if (room != null && !room.IsRunning)
+        {
+            room.StartTime = DateTime.Now - room.ElapsedTime; // Allow resume from elapsed time
+            room.IsRunning = true;
+        }
+    }
+
+    private async void CheckOut(int roomId)
+    {
+        var room = rooms.FirstOrDefault(r => r.Id == roomId);
+        if (room != null)
+        {
+            if (room.IsRunning)
+            {
+                // Stop timer first
+                room.ElapsedTime = DateTime.Now - room.StartTime;
+                room.IsRunning = false;
+            }
+
+            var hoursUsed = room.ElapsedTime.TotalHours;
+            var price = (decimal)hoursUsed * room.PricePerHour;
+
+            // Format message with coffee brown colors for alert using JS alert
+            string message =
+                $"Room #{room.Id} Check Out\n" +
+                $"Time Used: {FormatTime(room.ElapsedTime)}\n" +
+                $"Price: ${price:0.00}";
+
+            // Remove this room from list after checkout
+            rooms.Remove(room);
+
+            await JSRuntime.InvokeVoidAsync("alert", message);
+
+            StateHasChanged();
+        }
+    }
+
+    private string FormatTime(TimeSpan ts) =>
+        $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}";
+
+    class GameRoom
+    {
+        public int Id { get; set; }
+        public decimal PricePerHour { get; set; }
+        public bool IsRunning { get; set; }
+        public DateTime StartTime { get; set; }
+        public TimeSpan ElapsedTime { get; set; }
+    }
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
+}

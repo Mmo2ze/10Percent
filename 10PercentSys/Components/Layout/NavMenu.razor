@@ -3,7 +3,7 @@
 
 <div class="side-menu @(IsCollapsed ? "collapsed" : "")">
     <div class="brand-header">
-        <span class="navbar-brand">10PercentSys</span>
+        <span class="navbar-brand">10Percent</span>
         <button class="menu-toggle" @onclick="ToggleMenu">
             @if (IsCollapsed)
             {
@@ -30,6 +30,10 @@
                 class="nav-button @(IsCurrentPage("orders") ? "active" : "")">
             Orders
         </button>
+        <button @onclick="NavigateToGamingRoom"
+                                 class="nav-button @(IsCurrentPage("gamingRoom") ? "active" : "")">
+            Gaming Room
+        </button>
     </nav>
 </div>
 
@@ -53,6 +57,7 @@
     private void NavigateToHome() => Navigation.NavigateTo("");
     private void NavigateToCategories() => Navigation.NavigateTo("categories");
     private void NavigateToWeather() => Navigation.NavigateTo("orders");
+    private void NavigateToGamingRoom() => Navigation.NavigateTo("gamingRoom");
 
     private bool IsCurrentPage(string path)
     {

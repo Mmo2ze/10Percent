@@ -51,6 +51,8 @@ public class OrderProduct
             })
             .ToList();
     }
+    public ProductSummary Summary =>  new(ProductId, NameWithSize);
+    
 }
 
 public class OrderItem

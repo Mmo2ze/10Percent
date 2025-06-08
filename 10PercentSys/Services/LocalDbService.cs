@@ -6,8 +6,9 @@ namespace _10PercentSys.Services;
 
 public class LocalDbService
 {
-    private const string DbName = "10PercentDb2.db";
+    private const string DbName = "10PercentDb.db";
     private static string BackUpPath => Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
     private static string DbPath =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DbName);
 
@@ -16,7 +17,6 @@ public class LocalDbService
 
     public LocalDbService()
     {
-
         _connection = new SQLiteAsyncConnection(DbPath);
         _connection.ExecuteAsync("PRAGMA foreign_keys = ON;");
 // Add this after creating the connection
@@ -36,11 +36,19 @@ public class LocalDbService
             await _connection.CreateTableAsync<Order>();
             await _connection.CreateTableAsync<OrderProduct>();
             await _connection.CreateTableAsync<Category>();
+            await _connection.DeleteAsync<Order>(GetOrdersAsync());
+            await _connection.DeleteAsync<OrderProduct>(GetOrderItemsAsync());
+            await _connection.DeleteAsync<Models.GamingRoom>();
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
         }
+    }
+
+    public async Task<List<OrderProduct>> GetOrderItemsAsync()
+    {
+        return await _connection.Table<OrderProduct>().ToListAsync();
     }
 
     public async Task<List<Product>> GetProductsAsync()
@@ -67,8 +75,8 @@ public class LocalDbService
     {
         await _connection.DeleteAsync(product);
     }
-    
-    public async Task DeleteProductAsync(int  id)
+
+    public async Task DeleteProductAsync(int id)
     {
         await _connection.DeleteAsync<Product>(id);
     }
@@ -121,7 +129,7 @@ public class LocalDbService
     {
         await _connection.UpdateAsync(currentCategory);
     }
-    
+
     public async Task CreateCategoryAsync(Category category)
     {
         await _connection.InsertAsync(category);
@@ -135,5 +143,13 @@ public class LocalDbService
     public async Task<Category> GetCategoryAsync(int categoryId)
     {
         return await _connection.Table<Category>().Where(c => c.Id == categoryId).FirstOrDefaultAsync();
+    }
+    public async Task<List<Models.GamingRoom>> GetGamingRoomsAsync()
+    {
+        return await _connection.Table<Models.GamingRoom>().ToListAsync();
+    }
+    public async Task<Models.GamingRoom> GetGamingRoomAsync(int id)
+    {
+        return await _connection.Table<Models.GamingRoom>().Where(p => p.id == id).FirstOrDefaultAsync();
     }
 }

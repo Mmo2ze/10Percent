@@ -24,6 +24,9 @@
                 <i class="bi bi-arrow-repeat"></i> Reset
             </button>
         </div>
+        <button class="btn btn-outline-secondary" @onclick="PrintSummary">
+            <i class="bi bi-arrow-repeat"></i> PrintSummary
+        </button>
     </div>
 
     <!-- Order Cards -->
@@ -88,8 +91,8 @@
 </div>
 @code {
     private List<Order>? _orders;
-    private DateTime startDate = DateTime.Now.AddDays(-7);
     private DateTime endDate = DateTime.Now;
+    private DateTime startDate = DateTime.Now.AddHours(9 - DateTime.Now.Hour).AddMinutes(0 - DateTime.Now.Minute);
     private decimal grandTotal;
     private ReceiptService _receiptService = new();
 
@@ -134,6 +137,11 @@
     {
         _receiptService.PrintReceipt(order);
         return Task.CompletedTask;
+    }
+
+    private void PrintSummary()
+    {
+        _receiptService.PrintSummary(_orders, startDate, endDate, grandTotal);
     }
 
 }

@@ -1,0 +1,129 @@
+﻿
+
+<style>
+    /* Coffee-themed room card styling */
+    .room-card {
+        background-color: #6f4f28; /* dark coffee brown */
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        color: #f3e9dc; /* cream/beige */
+        box-shadow: 0 4px 12px rgba(101, 67, 33, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        user-select: none;
+    }
+
+    .room-info {
+        flex: 1 1 150px;
+        margin-right: 1rem;
+    }
+    .room-id {
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 0.2rem;
+    }
+    .room-price {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .room-timer {
+        font-family: monospace;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #d6b370; /* beige/yellow highlight */
+        min-width: 110px;
+        text-align: center;
+        user-select: text;
+        margin: 0 1rem;
+    }
+
+    button {
+        background-color: #d1a054; /* light coffee */
+        border: none;
+        border-radius: 8px;
+        color: #3e2e1e; /* dark text */
+        font-weight: 700;
+        padding: 0.6rem 1.2rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 0.5rem;
+        user-select: none;
+    }
+    button:hover:not(:disabled) {
+        background-color: #e2bb6f;
+    }
+    button:disabled {
+        background-color: #c7b38d;
+        cursor: not-allowed;
+    }
+
+    @@media (max-width: 600px) {
+        .room-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .room-timer {
+            margin: 0.5rem 0;
+            text-align: left;
+            min-width: auto;
+        }
+        button {
+            width: 100%;
+            margin: 0.25rem 0 0 0;
+        }
+    }
+</style>
+
+<div class="room-card">
+    <div class="room-info">
+        <div class="room-id">Room #@RoomId</div>
+        <div class="room-price">Price: $@PricePerHour:0.00 / hour</div>
+    </div>
+    <div class="room-timer">@FormatTime(ElapsedTime)</div>
+    <div>
+        <button @onclick="StartClicked" disabled="@IsRunning">Start</button>
+        <button @onclick="CheckOutClicked">Check Out</button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int RoomId { get; set; }
+
+    [Parameter, EditorRequired]
+    public decimal PricePerHour { get; set; }
+
+    [Parameter]
+    public bool IsRunning { get; set; }
+
+    [Parameter]
+    public TimeSpan ElapsedTime { get; set; }
+
+    [Parameter]
+    public EventCallback OnStart { get; set; }
+
+    [Parameter]
+    public EventCallback OnCheckOut { get; set; }
+
+    string FormatTime(TimeSpan ts) =>
+        $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}";
+
+    private async Task StartClicked()
+    {
+        if (OnStart.HasDelegate)
+        {
+            await OnStart.InvokeAsync(null);
+        }
+    }
+
+    private async Task CheckOutClicked()
+    {
+        if (OnCheckOut.HasDelegate)
+        {
+            await OnCheckOut.InvokeAsync(null);
+        }
+    }
+}

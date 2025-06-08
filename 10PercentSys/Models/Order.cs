@@ -41,3 +41,7 @@ public class Order
         };
     }
 }
+
+public record ProductSummary(int ProductId, string Name)
+{
+};
